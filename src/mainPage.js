@@ -18,19 +18,18 @@ let saveFrame
 let plotScale
 let downloadIcon
 let plotShift
+let keyPressTime
 
 function mainPage(){
     if(showLoading(onLoading))
         return
 
     push()
-    if(timeLinePos > width/2 && synthSound.isPlaying()){
+    if(timeLinePos > width/2 && !mouseIsPressed){
         plotShift = width/2-timeLinePos
         plotShift = constrain(plotShift,-(plotW*(plotScale-1)),0)
-        translate(plotShift,0)
-    }else{
-        plotShift = 0
     }
+    translate(plotShift,0)
     musicPlot()
     pop()
     showTrackName()
@@ -38,6 +37,24 @@ function mainPage(){
     topLeftMenu()
     playButton()
     topRightMenu()
+    if(keyIsPressed && millis() - keyPressTime > 500){
+        if(key == '-' || key == '_'){
+            let tmpTime = map(timeLinePos,0,barW*plotScale,0,barLength)
+    
+            plotScale -= 0.05;
+            if(plotScale < 1)
+                plotScale = 1
+            timeLinePos = map(tmpTime,0,barLength,0,barW*plotScale)
+            timeLinePos = constrain(timeLinePos,0,plotW*plotScale)
+    
+        } else if(key == '=' || key == '+'){
+            let tmpTime = map(timeLinePos,0,barW*plotScale,0,barLength)
+            plotScale += 0.05;
+            timeLinePos = map(tmpTime,0,barLength,0,barW*plotScale)
+            timeLinePos = constrain(timeLinePos,0,plotW*plotScale)
+    
+        }
+    }
 }
 
 function musicPlot(){
@@ -53,13 +70,17 @@ function musicPlot(){
                 noFill();
                 rect(x,y,barW*plotScale,barH);
                 if(i == trackCount-1){
-                    fill(255,100)
-                    text(j,x,plotStart.y+(barH)*trackCount+height/50)
+                    if(barW*plotScale > height/10 || (barW*plotScale <= height/10 && j % int(height/(10*barW)) == 0)){
+                        fill(255,100)
+                        text(j,x,plotStart.y+(barH)*trackCount+height/50)
+                    }
                 }
             }
         }
         fill(255,100)
-        text(barCount,plotStart.x+(barW*plotScale)*barCount,plotStart.y+(barH)*trackCount+height/50)
+        if(barW*plotScale > height/10 || (barW*plotScale <= height/10 && barCount % int(height/(10*barW)) == 0)){
+            text(barCount,plotStart.x+(barW*plotScale)*barCount,plotStart.y+(barH)*trackCount+height/50)
+        }
     }
     rectMode(CENTER)
 
@@ -79,12 +100,12 @@ function musicPlot(){
 
     //timeline
     stroke(0,255,255)
-    if(timeLinePos > plotStart.x)
-        line(timeLinePos,plotStart.y+(barH)*trackCount,timeLinePos,plotStart.y)
+    if(timeLinePos > plotStart.x-plotStart.x)
+        line(plotStart.x+timeLinePos,plotStart.y+(barH)*trackCount,plotStart.x+timeLinePos,plotStart.y)
     strokeWeight(1)
     noStroke()
     if(synthSound.isPlaying()){
-        timeLinePos = map(synthSound.currentTime(),0,barLength,plotStart.x,plotStart.x+barW*plotScale)
+        timeLinePos = map(synthSound.currentTime(),0,barLength,0,barW*plotScale)
     }
 }
 
@@ -226,27 +247,31 @@ function setMainPage(){
     barH = plotH/trackCount
     plotScale = 1
     plotStart = createVector((width-plotW)*0.66,(height-plotH)*0.6)
-    timeLinePos = plotStart.x
+    timeLinePos = 0
     showInstruction = 0
     saveFrame = createGraphics(width, plotH*1.04)
     plotShift = 0
+    keyPressTime = 0
+}
+
+function setTimeLineToMouse(){
+    timeLinePos = map(mouseX,plotStart.x,plotStart.x+plotW,-plotShift,-plotShift+plotW)
+    timeLinePos = constrain(timeLinePos,0,plotW*plotScale)
 }
 
 function mainPageMouseDragged(){
     let m = height/20
     if(mouseY > menuHeight + m*0.6 && mouseX > plotStart.x-plotW*0.05 && mouseX < plotStart.x+plotW*1.05){
-        timeLinePos = mouseX - plotShift
-        timeLinePos = constrain(timeLinePos,plotStart.x,plotStart.x+plotW+plotShift)
+        setTimeLineToMouse()
     }
 }
 
 function mainPageMouseReleased(){
     let m = height/20
     if(!synthSound.isPlaying() && mouseY > menuHeight + m*0.6 && mouseX > plotStart.x-plotW*0.05 && mouseX < plotStart.x+plotW*1.05){
-        timeLinePos = mouseX - plotShift
-        timeLinePos = constrain(timeLinePos,plotStart.x,plotStart.x+plotW*plotScale+plotShift)
-        let t = map(timeLinePos,plotStart.x,plotStart.x+barW*plotScale,0,barLength)
-        synthSound.stop()
+        setTimeLineToMouse()
+        let t = map(timeLinePos,0,barW*plotScale,0,barLength)
+        // synthSound.stop()
         synthSound.jump(t,synthSound.duration() - t)
     }
 }
@@ -259,9 +284,8 @@ function mainPageMousePressed(){
     let l = 20
 
     if(mouseY > menuHeight + m*0.6 && mouseX > plotStart.x-plotW*0.05 && mouseX < plotStart.x+plotW*1.05){
-        timeLinePos = mouseX - plotShift
-        timeLinePos = constrain(timeLinePos,plotStart.x,plotStart.x+plotW*plotScale+plotShift)
         synthSound.stop()
+        setTimeLineToMouse()
     }
     //play button
     else if(dist(mouseX,mouseY,x,y) < l*1.4 ){
@@ -306,17 +330,21 @@ function mainPageKeyPressed(){
         saveFrame.image(c, 0, 0);
         save(saveFrame, musicInfo.file_name.split('.')[0]+".png");
     } else if(key == '-' || key == '_'){
-        let tmpTime = map(timeLinePos,plotStart.x,plotStart.x+barW*plotScale,0,barLength)
+        keyPressTime = millis()
+        let tmpTime = map(timeLinePos,0,barW*plotScale,0,barLength)
 
         plotScale -= 0.2;
         if(plotScale < 1)
             plotScale = 1
-        timeLinePos = map(tmpTime,0,barLength,plotStart.x,plotStart.x+barW*plotScale)
-        timeLinePos = constrain(timeLinePos,plotStart.x,plotStart.x+plotW*plotScale)
+        timeLinePos = map(tmpTime,0,barLength,0,barW*plotScale)
+        timeLinePos = constrain(timeLinePos,0,plotW*plotScale)
+
     } else if(key == '=' || key == '+'){
-        let tmpTime = map(timeLinePos,plotStart.x,plotStart.x+barW*plotScale,0,barLength)
+        keyPressTime = millis()
+        let tmpTime = map(timeLinePos,0,barW*plotScale,0,barLength)
         plotScale += 0.2;
-        timeLinePos = map(tmpTime,0,barLength,plotStart.x,plotStart.x+barW*plotScale)
-        timeLinePos = constrain(timeLinePos,plotStart.x,plotStart.x+plotW*plotScale)
+        timeLinePos = map(tmpTime,0,barLength,0,barW*plotScale)
+        timeLinePos = constrain(timeLinePos,0,plotW*plotScale)
+
     }
 }
