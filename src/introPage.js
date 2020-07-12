@@ -18,6 +18,7 @@ function introPage(){
         let s = baseInfo.files[fileKeys[i]]
         fill(255)
         text(s,centerLeft,height*0.35+(i+1)*height*0.08);
+        noStroke()
         fill(255,100);
         if(fileId == i || (abs(mouseX-centerLeft) < width/2 && abs(mouseY - (height*0.35+(i+1)*height*0.08)) < height*0.04)){
             rect(centerLeft,height*0.35+(i+1)*height*0.08,textWidth(s)*1.2,height/20,height/60);

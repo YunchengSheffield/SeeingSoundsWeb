@@ -15,6 +15,8 @@ let barW
 let barH
 let showInstruction
 let saveFrame
+let plotScale
+let downloadIcon
 
 function mainPage(){
     if(showLoading(onLoading))
@@ -77,7 +79,8 @@ function musicPlot(){
 
     //timeline
     stroke(0,255,255)
-    line(timeLinePos,plotStart.y+(barH)*trackCount,timeLinePos,plotStart.y)
+    if(timeLinePos > plotStart.x)
+        line(timeLinePos,plotStart.y+(barH)*trackCount,timeLinePos,plotStart.y)
     strokeWeight(1)
     noStroke()
     if(synthSound.isPlaying()){
@@ -94,6 +97,7 @@ function topLeftMenu(){
 
     if(dist(mouseX,mouseY,m/2,menuHeight) < m/2){
         fill(255,100)
+        noStroke()
         ellipse(m/2,menuHeight,m*0.8,m*0.8)
     }
 }
@@ -112,7 +116,7 @@ function topRightMenu(){
     if(dist(mouseX,mouseY,width-m/2,menuHeight) < m/2){
         fill(255,100)
         noStroke()
-        ellipse(width-m/2,menuHeight,m*0.8,m*0.8)
+        ellipse(width-m/2,menuHeight,m*0.9,m*0.9)
     }else{
         if(showInstruction != 1)
             showInstruction = 0
@@ -132,6 +136,12 @@ function topRightMenu(){
     }
 
     //download Image
+    image(downloadIcon,width-m*1.5,menuHeight)
+    if(dist(mouseX,mouseY,width-m*1.5,menuHeight) < m/2){
+        fill(255,100)
+        noStroke()
+        ellipse(width-m*1.5,menuHeight,m*0.9,m*0.9)
+    }
 }
 
 function playButton(){
@@ -141,10 +151,13 @@ function playButton(){
         let l = 20
         let w = 10;
         let h = 30;
+        fill(255)
+        noStroke()
         rect(width/2-w,y,w,h)
         rect(width/2+w,y,w,h)
         if(dist(mouseX,mouseY,x,y) < l*1.4 ){
             fill(255,100)
+            noStroke()
             ellipse(x,y,l*2.6,l*2.6)
         }
     }else{
@@ -152,9 +165,11 @@ function playButton(){
         let x = width/2
         let y = menuHeight
         let l = 20
+        noStroke()
         triangle(x+l*cos(0),y+l*sin(0),x+l*cos(2*PI/3),y+l*sin(2*PI/3),x+l*cos(4*PI/3),y+l*sin(4*PI/3));
         if(dist(mouseX,mouseY,x,y) < l*1.4 ){
             fill(255,100)
+            noStroke
             ellipse(x,y,l*2.6,l*2.6)
         }
     }
@@ -187,10 +202,30 @@ function setMainPage(){
     plotH = height*0.85
     barW = plotW/barCount
     barH = plotH/trackCount
+    plotScale = 1
     plotStart = createVector((width-plotW)*0.66,(height-plotH)*0.6)
     timeLinePos = plotStart.x
     showInstruction = 0
     saveFrame = createGraphics(width, plotH*1.04)
+}
+
+function mainPageMouseDragged(){
+    let m = height/20
+    if(mouseY > menuHeight + m*0.6 && mouseX > plotStart.x-plotW*0.05 && mouseX < plotStart.x+plotW*1.05){
+        timeLinePos = mouseX
+        timeLinePos = constrain(timeLinePos,plotStart.x,plotStart.x+plotW)
+    }
+}
+
+function mainPageMouseReleased(){
+    let m = height/20
+    if(!synthSound.isPlaying() && mouseY > menuHeight + m*0.6 && mouseX > plotStart.x-plotW*0.05 && mouseX < plotStart.x+plotW*1.05){
+        timeLinePos = mouseX
+        timeLinePos = constrain(timeLinePos,plotStart.x,plotStart.x+plotW)
+        let t = map(timeLinePos,plotStart.x,plotStart.x+barW,0,barLength)
+        synthSound.stop()
+        synthSound.jump(t,synthSound.duration() - t)
+    }
 }
 
 function mainPageMousePressed(){
@@ -199,7 +234,15 @@ function mainPageMousePressed(){
     let y = menuHeight
     let m = height/20
     let l = 20
-    if(dist(mouseX,mouseY,x,y) < l*1.4 ){
+
+    if(synthSound.isPlaying() && mouseY > menuHeight + m*0.6 && mouseX > plotStart.x-plotW*0.05 && mouseX < plotStart.x+plotW*1.05){
+        timeLinePos = mouseX
+        timeLinePos = constrain(timeLinePos,plotStart.x,plotStart.x+plotW)
+        let t = map(timeLinePos,plotStart.x,plotStart.x+barW,0,barLength)
+        synthSound.stop()
+    }
+    //play button
+    else if(dist(mouseX,mouseY,x,y) < l*1.4 ){
         if(synthSound.isPlaying()){
             synthSound.pause()
         }else{
@@ -220,6 +263,10 @@ function mainPageMousePressed(){
         else if(showInstruction == 1)
             showInstruction = 2
     }
+    //wav download
+    else if(dist(mouseX,mouseY,width-m*1.5,menuHeight) < m/2){
+        save(synthSound,musicInfo.file_name.split('.')[0]+".wav");
+    }
 }
 
 function mainPageKeyPressed(){
@@ -227,6 +274,7 @@ function mainPageKeyPressed(){
         if(synthSound.isPlaying()){
             synthSound.pause()
         }else{
+            // synthSound.jump()
             synthSound.play()
         }
     }else if(key == 'b' || key == 'B'){
@@ -235,5 +283,12 @@ function mainPageKeyPressed(){
         let c = get(0,plotStart.y-plotH*0.02, width, plotStart.y+plotH*1.02);
         saveFrame.image(c, 0, 0);
         save(saveFrame, musicInfo.file_name.split('.')[0]+".png");
+    } else if(key == '-' || key == '_'){
+        plotScale -= 0.2;
+        if(plotScale < 1)
+            plotScale = 1
+    } else if(key == '=' || key == '+'){
+        plotScale += 0.2;
     }
+    console.log(plotScale)
 }

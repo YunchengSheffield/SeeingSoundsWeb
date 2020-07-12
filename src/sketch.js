@@ -6,12 +6,19 @@ let errorTime = 0;
 let page = 0;
 let initalised = false;
 
+function preload(){
+  downloadIcon = loadImage("assets/download.png")
+}
+
 function setup() {
   createCanvas(windowWidth, windowHeight).parent('sketch-holder')
   baseInfo = loadJSON(serverURL + '/MIDI_files_and_sound_font','json',function(){initalised = true;},jsonError)
+  
+  downloadIcon.resize(height/30,0)
   setintroPage()
   textAlign(CENTER,CENTER)
   rectMode(CENTER)
+  imageMode(CENTER)
   colorMode(HSB,255,255,255,255)
 }
 
@@ -36,6 +43,18 @@ function mousePressed(){
   if(!onError && !onLoading && initalised){
     if(page == 0) introPageMousePressed()
     else mainPageMousePressed()
+  }
+}
+
+function mouseDragged(){
+  if(!onError && !onLoading && initalised){
+    if(page == 1) mainPageMouseDragged()
+  }
+}
+
+function mouseReleased(){
+  if(!onError && !onLoading && initalised){
+    if(page == 1) mainPageMouseReleased()
   }
 }
 
