@@ -5,7 +5,7 @@ let hoverFrameCount
 function introPage(){
     fill(255)
     textSize(height/10)
-    text('Seeing the Sound',width/2,height*0.15)
+    text('Seeing Sound',width/2,height*0.15)
     textSize(height/20)
     let centerLeft = width*0.5
     // let centerRight = width*0.7

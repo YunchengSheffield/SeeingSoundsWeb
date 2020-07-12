@@ -174,7 +174,7 @@ function topRightMenu(){
         textAlign(RIGHT)
         text("s:\nspace:\n-/+:\nmouse:\nb:",width-m*3.2,menuHeight+m*2.2)
         textAlign(LEFT)
-        text(" save,\n play/pause\n zoom in/out\n set time\n show grid",width-m*3.2,menuHeight+m*2.2)
+        text(" Save\n Play/pause\n Zoom in/out\n Set time\n Show grid",width-m*3.2,menuHeight+m*2.2)
         textAlign(CENTER)
     }
 
