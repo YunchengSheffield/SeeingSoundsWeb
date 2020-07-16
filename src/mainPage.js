@@ -25,7 +25,7 @@ function mainPage(){
         return
 
     push()
-    if(timeLinePos > width/2 && !mouseIsPressed){
+    if(timeLinePos+plotShift > width/2 && !mouseIsPressed){
         plotShift = width/2-timeLinePos
         plotShift = constrain(plotShift,-(plotW*(plotScale-1)),0)
     }
@@ -336,8 +336,11 @@ function mainPageKeyPressed(){
         plotScale -= 0.2;
         if(plotScale < 1)
             plotScale = 1
+        plotShift = constrain(plotShift,-(plotW*(plotScale-1)),0)
+        
         timeLinePos = map(tmpTime,0,barLength,0,barW*plotScale)
         timeLinePos = constrain(timeLinePos,0,plotW*plotScale)
+        
 
     } else if(key == '=' || key == '+'){
         keyPressTime = millis()
