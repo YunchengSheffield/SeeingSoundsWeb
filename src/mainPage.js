@@ -44,6 +44,9 @@ function mainPage(){
             plotScale -= 0.05;
             if(plotScale < 1)
                 plotScale = 1
+
+            plotShift = constrain(plotShift,-(plotW*(plotScale-1)),0)
+            
             timeLinePos = map(tmpTime,0,barLength,0,barW*plotScale)
             timeLinePos = constrain(timeLinePos,0,plotW*plotScale)
     
@@ -337,7 +340,7 @@ function mainPageKeyPressed(){
         if(plotScale < 1)
             plotScale = 1
         plotShift = constrain(plotShift,-(plotW*(plotScale-1)),0)
-        
+
         timeLinePos = map(tmpTime,0,barLength,0,barW*plotScale)
         timeLinePos = constrain(timeLinePos,0,plotW*plotScale)
         
