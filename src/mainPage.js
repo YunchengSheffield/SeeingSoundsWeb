@@ -223,7 +223,7 @@ function playButton(){
 }
 
 function showLoadingWithIntro(l){
-    if(l || millis() - showIntro > 2000){
+    if(l || millis() - showIntro < 2000){
         fill(255)
         textSize(height/15);
 
