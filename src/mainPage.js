@@ -19,9 +19,10 @@ let plotScale
 let downloadIcon
 let plotShift
 let keyPressTime
+let showIntro
 
 function mainPage(){
-    if(showLoading(onLoading))
+    if(showLoadingWithIntro(onLoading))
         return
 
     push()
@@ -221,6 +222,28 @@ function playButton(){
     }
 }
 
+function showLoadingWithIntro(l){
+    if(l || millis() - showIntro > 2000){
+        fill(255)
+        textSize(height/15);
+
+        textAlign(RIGHT)
+        text("s:\nspace:\n-/+:\nmouse:\nb:",width/2.1,height/2)
+        textAlign(LEFT)
+        text(" Save\n Play/pause\n Zoom in/out\n Set time\n Show grid",width/2,height/2)
+        textAlign(CENTER)
+
+        textSize(height/30);
+        let s = "Loading"
+        // if(dist(mouseX,mouseY,width/2,height*0.8) < height/16){
+            for(let i = 1;i < (frameCount/20) % 4;i++)
+                s += "."
+        // }
+        text(s,width/2,height*0.9);
+        return true
+    }
+}
+
 function showLoading(l){
     if(l){
         fill(255)
@@ -255,6 +278,7 @@ function setMainPage(){
     saveFrame = createGraphics(width, plotH*1.04)
     plotShift = 0
     keyPressTime = 0
+    showIntro = millis()
 }
 
 function setTimeLineToMouse(){
