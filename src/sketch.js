@@ -1,6 +1,6 @@
 let serverURL = 'https://mymidiserver.herokuapp.com/'
 serverURL = 'http://34.89.120.31'
-serverURL = 'http://127.0.0.1:5000'
+// serverURL = 'http://127.0.0.1:5000'
 let sound
 let baseInfo
 let onError = false;
