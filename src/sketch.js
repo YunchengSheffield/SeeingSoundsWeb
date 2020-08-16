@@ -1,4 +1,6 @@
 let serverURL = 'https://mymidiserver.herokuapp.com/'
+serverURL = 'http://34.89.120.31'
+serverURL = 'http://127.0.0.1:5000'
 let sound
 let baseInfo
 let onError = false;
@@ -28,6 +30,7 @@ function draw() {
     return
   if(onError){
     fill(255);
+    textSize(height/20)
     text("Sever Error",width/2,height/2);
     if(millis() - errorTime > 2000){
       setintroPage();

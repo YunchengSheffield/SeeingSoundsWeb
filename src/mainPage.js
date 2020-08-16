@@ -65,26 +65,35 @@ function musicPlot(){
     //bar line
     rectMode(CORNER)
     textSize(height/40)
-    stroke(255,100)
+    stroke(255,80)
     if(showBarLine){
+        let lineEnd = 0
         for(let i = 0;i < trackCount;i++){
+            let y = plotStart.y+(barH)*i
+            
             for(let j = 0;j < barCount;j++){
                 let x = plotStart.x+(barW*plotScale)*j
-                let y = plotStart.y+(barH)*i
                 noFill();
-                rect(x,y,barW*plotScale,barH);
-                if(i == trackCount-1){
-                    if(barW*plotScale > height/10 || (barW*plotScale <= height/10 && j % int(height/(10*barW)) == 0)){
+                // rect(x,y,barW*plotScale,barH);
+                
+                if(barW*plotScale > height/10 || (barW*plotScale <= height/10 && j % int(height/(10*barW)) == 0)){
+                    if(i == trackCount-1){
                         fill(255,100)
                         text(j,x,plotStart.y+(barH)*trackCount+height/50)
                     }
+                    line(x,plotStart.y+(barH)*i,x,plotStart.y+(barH)*i+barH)
+                    lineEnd = x;
                 }
+                
             }
+            line(plotStart.x,y,lineEnd,y)
         }
         fill(255,100)
         if(barW*plotScale > height/10 || (barW*plotScale <= height/10 && barCount % int(height/(10*barW)) == 0)){
             text(barCount,plotStart.x+(barW*plotScale)*barCount,plotStart.y+(barH)*trackCount+height/50)
         }
+        stroke(255,80)
+        line(plotStart.x,plotStart.y+(barH)*trackCount,lineEnd,plotStart.y+(barH)*trackCount)
     }
     rectMode(CENTER)
 
