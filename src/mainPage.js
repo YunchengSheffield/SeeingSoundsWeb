@@ -334,6 +334,8 @@ function mainPageMousePressed(){
     //back
     else if(dist(mouseX,mouseY,m/2,menuHeight) < m/2){
         page = 0
+        input.show()
+        fileErrorMessage = ""
         if(synthSound.isPlaying()){
             synthSound.pause()
         }

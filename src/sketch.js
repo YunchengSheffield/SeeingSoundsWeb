@@ -1,6 +1,6 @@
 let serverURL = 'https://mymidiserver.herokuapp.com/'
 serverURL = 'http://34.89.120.31'
-// serverURL = 'http://127.0.0.1:5000'
+serverURL = 'http://127.0.0.1:5000'
 let sound
 let baseInfo
 let onError = false;
@@ -14,7 +14,7 @@ function preload(){
 
 function setup() {
   createCanvas(windowWidth, windowHeight).parent('sketch-holder')
-  baseInfo = loadJSON(serverURL + '/MIDI_files_and_sound_font','json',function(){initalised = true;},jsonError)
+  baseInfo = loadJSON(serverURL + '/MIDI_files_and_sound_font','json',function(){initalised = true;input.show()},jsonError)
   
   downloadIcon.resize(height/30,0)
   setintroPage()
@@ -34,6 +34,7 @@ function draw() {
     text("Sever Error",width/2,height/2);
     if(millis() - errorTime > 2000){
       setintroPage();
+      input.show()
       page = 0;
     }
     return;
