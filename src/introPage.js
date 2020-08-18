@@ -19,30 +19,30 @@ function introPage() {
     for (let i = 0; i < fileKeys.length; i++) {
         let s = baseInfo.files[fileKeys[i]]
         fill(255)
-        text(s, centerLeft, height * 0.35 + (i + 1) * height * 0.08);
+        text(s, centerLeft, height * 0.25 + (i + 1) * height * 0.08);
         noStroke()
         fill(255, 100);
-        if (fileId == i || (abs(mouseX - centerLeft) < width / 2 && abs(mouseY - (height * 0.35 + (i + 1) * height * 0.08)) < height * 0.04)) {
-            rect(centerLeft, height * 0.35 + (i + 1) * height * 0.08, textWidth(s) * 1.2, height / 20, height / 60);
+        if (fileId == i || (abs(mouseX - centerLeft) < width / 2 && abs(mouseY - (height * 0.25 + (i + 1) * height * 0.08)) < height * 0.04)) {
+            rect(centerLeft, height * 0.25 + (i + 1) * height * 0.08, textWidth(s) * 1.2, height / 20, height / 60);
             // if(mouseIsPressed){
             //     fileId = i
             // }
         }
     }
 
-    fill(0, 255, 255)
-    textSize(height / 40)
-    text(fileErrorMessage, width / 2, height * 0.87)
+    // fill(0, 255, 255)
+    // textSize(height / 40)
+    // text(fileErrorMessage, width / 2, height * 0.87)
 
     // let fontKeys = Object.keys(baseInfo.fonts)
     // for(let i = 0;i < fontKeys.length;i++){
     //     let s = baseInfo.fonts[fontKeys[i]]
     //     fill(255)
     //     fill(255)
-    //     text(s,centerRight,height*0.35+(i+1)*height*0.08);
+    //     text(s,centerRight,height*0.25+(i+1)*height*0.08);
     //     fill(255,100);
-    //     if(fontId == i || (mouseX > width/2 && abs(mouseY - (height*0.35+(i+1)*height*0.08)) < height*0.04)){
-    //         rect(centerRight,height*0.35+(i+1)*height*0.08,textWidth(s)*1.2,height/20,height/60);
+    //     if(fontId == i || (mouseX > width/2 && abs(mouseY - (height*0.25+(i+1)*height*0.08)) < height*0.04)){
+    //         rect(centerRight,height*0.25+(i+1)*height*0.08,textWidth(s)*1.2,height/20,height/60);
     //         if(mouseIsPressed){
     //             fontId = i
     //         }
@@ -76,7 +76,7 @@ function introPageMousePressed() {
     let centerLeft = width * 0.5
     let fileKeys = Object.keys(baseInfo.files)
     for (let i = 0; i < fileKeys.length; i++) {
-        if ((abs(mouseX - centerLeft) < width / 2 && abs(mouseY - (height * 0.35 + (i + 1) * height * 0.08)) < height * 0.04)) {
+        if ((abs(mouseX - centerLeft) < width / 2 && abs(mouseY - (height * 0.25 + (i + 1) * height * 0.08)) < height * 0.04)) {
             fileId = i
             onLoading = true
             page = 1
@@ -92,8 +92,8 @@ function introPageKeyPressed() {
 
 }
 
-function loadMusicInfo() {
-    musicInfo = loadJSON(serverURL + '/notes_and_sound/' + fileId + ',' + fontId, 'json', loadSynthsisedSound, jsonError)
+function loadMusicInfo(fileName) {
+    musicInfo = loadJSON(serverURL + '/custumSound/' + fileName, 'json', loadSynthsisedSound, jsonError)
 }
 
 function loadSynthsisedSound() {
@@ -110,9 +110,46 @@ function setintroPage() {
     onError = false
     onLoading = false
     hover = false
-    input = createFileInput(handleFile)
-    
-    // input = select('#fileUpload')
+}
+
+function fileInit(){
+    let f = document.getElementById('fileUpload')
+    f.value = f.defaultValue
+}
+
+function createMyFileInput(){
+    input = select('#fileUpload')
+    document.getElementById('fileUpload').addEventListener('change', (event) => {
+        fileErrorMessage = ""
+        onLoading = true
+        page = 1
+        input.hide()
+
+        const fileList = event.target.files;
+        if(fileList.length == 0) return
+        console.log(fileList);
+        let formData = new FormData()
+        formData.append('file', fileList[0])
+
+        fetch(serverURL+'/uploader', {
+            method: 'POST',
+            body: formData
+        })
+        // .then(response => response.json())
+        .then(data => {
+            if(data.status != 200){
+                jsonError()
+            }
+            loadMusicInfo(fileList[0].name)
+            console.log(data)
+        })
+        .catch(error => {
+            console.error(error)
+            jsonError()
+        })
+
+      });
+
     fileErrorMessage = ""
     input.position(width / 2 - input.width, height * 0.8)
     input.style('font-size: 20pt;');
@@ -121,18 +158,4 @@ function setintroPage() {
     input.style('border: 1px solid #999;');
     input.style('border-radius: 5px;');
     input.hide()
-}
-
-function handleFile(file) {
-    print(file)
-    if (file.subtype != 'midi') {
-        fileErrorMessage = "Not support this kind of file."
-    } else {
-        fileErrorMessage = ""
-        onLoading = true
-        page = 1
-        input.hide()
-        console.log(file.name)
-
-    }
 }

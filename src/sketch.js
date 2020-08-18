@@ -1,6 +1,6 @@
 let serverURL = 'https://mymidiserver.herokuapp.com/'
 serverURL = 'http://34.89.120.31'
-serverURL = 'http://127.0.0.1:5000'
+// serverURL = 'http://127.0.0.1:5000'
 let sound
 let baseInfo
 let onError = false;
@@ -14,10 +14,10 @@ function preload(){
 
 function setup() {
   createCanvas(windowWidth, windowHeight).parent('sketch-holder')
-  baseInfo = loadJSON(serverURL + '/MIDI_files_and_sound_font','json',function(){initalised = true;input.show()},jsonError)
-  
   downloadIcon.resize(height/30,0)
   setintroPage()
+  createMyFileInput()
+  baseInfo = loadJSON(serverURL + '/MIDI_files_and_sound_font','json',function(){initalised = true;input.show()},jsonError)
   textAlign(CENTER,CENTER)
   rectMode(CENTER)
   imageMode(CENTER)
@@ -71,10 +71,12 @@ function keyPressed(){
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
+  input.position(width / 2 - input.width, height * 0.8)
 }
 
 function jsonError(){
   initalised = true;
   onError = true;
   errorTime = millis();
+  fileInit()
 }
