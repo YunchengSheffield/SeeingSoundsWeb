@@ -19,11 +19,11 @@ function introPage() {
     for (let i = 0; i < fileKeys.length; i++) {
         let s = baseInfo.files[fileKeys[i]]
         fill(255)
-        text(s, centerLeft, height * 0.25 + (i + 1) * height * 0.08);
+        text(s, centerLeft, height * 0.23 + (i + 1) * height * 0.08);
         noStroke()
         fill(255, 100);
-        if (fileId == i || (abs(mouseX - centerLeft) < width / 2 && abs(mouseY - (height * 0.25 + (i + 1) * height * 0.08)) < height * 0.04)) {
-            rect(centerLeft, height * 0.25 + (i + 1) * height * 0.08, textWidth(s) * 1.2, height / 20, height / 60);
+        if (fileId == i || (abs(mouseX - centerLeft) < width / 2 && abs(mouseY - (height * 0.23 + (i + 1) * height * 0.08)) < height * 0.04)) {
+            rect(centerLeft, height * 0.23 + (i + 1) * height * 0.08, textWidth(s) * 1.2, height / 20, height / 60);
             // if(mouseIsPressed){
             //     fileId = i
             // }
@@ -76,7 +76,7 @@ function introPageMousePressed() {
     let centerLeft = width * 0.5
     let fileKeys = Object.keys(baseInfo.files)
     for (let i = 0; i < fileKeys.length; i++) {
-        if ((abs(mouseX - centerLeft) < width / 2 && abs(mouseY - (height * 0.25 + (i + 1) * height * 0.08)) < height * 0.04)) {
+        if ((abs(mouseX - centerLeft) < width / 2 && abs(mouseY - (height * 0.23 + (i + 1) * height * 0.08)) < height * 0.04)) {
             fileId = i
             onLoading = true
             page = 1

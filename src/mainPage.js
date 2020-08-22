@@ -21,17 +21,24 @@ let plotShift
 let keyPressTime
 let showIntro
 let pressOnResume
+let drawTimeLine
+let drawPlotShift
+let onSwitch
 
 function mainPage() {
     if (showLoadingWithIntro(onLoading))
         return
 
     push()
-    if (timeLinePos + plotShift > width / 2 && !mouseIsPressed) {
+    if (!mouseIsPressed) {
         plotShift = width / 2 - timeLinePos
-        plotShift = constrain(plotShift, -(plotW * (plotScale - 1)), 0)
     }
-    translate(plotShift, 0)
+    showScrollHorizontalArea()
+
+    plotShift = constrain(plotShift, -(plotW * (plotScale - 1)), 0)
+    drawPlotShift += (plotShift - drawPlotShift) / 10
+    translate(drawPlotShift, 0)
+    // translate(plotShift, 0)
     musicPlot()
     pop()
     showTrackName()
@@ -39,7 +46,9 @@ function mainPage() {
     topLeftMenu()
     playButton()
     topRightMenu()
-    showScrollHorizontalArea()
+
+    console.log(getFrameRate())
+    
     if (keyIsPressed && millis() - keyPressTime > 500) {
         if (key == '-' || key == '_') {
             let tmpTime = map(timeLinePos, 0, barW * plotScale, 0, barLength)
@@ -143,14 +152,24 @@ function musicPlot() {
     }
 
     //timeline
+    drawTimeLine += (timeLinePos - drawTimeLine) / 5;
     stroke(0, 255, 255)
-    if (timeLinePos > plotStart.x - plotStart.x)
-        line(plotStart.x + timeLinePos, plotStart.y + (barH) * trackCount, plotStart.x + timeLinePos, plotStart.y)
+    if (drawTimeLine > plotStart.x - plotStart.x)
+        line(plotStart.x + drawTimeLine, plotStart.y + (barH) * trackCount, plotStart.x + drawTimeLine, plotStart.y)
+    // if (timeLinePos > plotStart.x - plotStart.x)
+        // line(plotStart.x + timeLinePos, plotStart.y + (barH) * trackCount, plotStart.x + timeLinePos, plotStart.y)
     strokeWeight(1)
     noStroke()
     if (synthSound.isPlaying()) {
+        if(!onSwitch){
+            onSwitch = true
+            return
+        }
         timeLinePos = map(synthSound.currentTime(), 0, barLength, 0, barW * plotScale)
+    }else{
+        onSwitch = false
     }
+    // console.log(timeLinePos)
 }
 
 function showTrackName() {
@@ -265,6 +284,8 @@ function playButton() {
 function showLoadingWithIntro(l) {
     if (l || millis() - showIntro < 2000) {
         fill(255)
+        textSize(height / 10);
+        text("Instruction",width/2,height*0.15)
         textSize(height / 15);
 
         textAlign(RIGHT)
@@ -318,7 +339,10 @@ function setMainPage() {
     saveFrame = createGraphics(width, plotH * 1.04)
     plotShift = 0
     keyPressTime = 0
+    drawTimeLine = 0
+    drawPlotShift = 0
     pressOnResume = false
+    onSwitch = false;
     showIntro = millis()
 }
 
@@ -340,7 +364,7 @@ function mainPageMouseReleased() {
         setTimeLineToMouse()
         let t = map(timeLinePos, 0, barW * plotScale, 0, barLength)
         // synthSound.stop()
-        synthSound.jump(t, synthSound.duration() - t)
+        synthSound.jump(t)
     }
 }
 
@@ -357,6 +381,7 @@ function mainPageMousePressed() {
         else
             pressOnResume = false
         synthSound.stop()
+        // synthSound.pause()
         setTimeLineToMouse()
     }
     //play button
